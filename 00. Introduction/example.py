@@ -1,0 +1,2 @@
+import baby_method
+
