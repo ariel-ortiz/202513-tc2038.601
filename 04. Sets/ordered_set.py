@@ -61,12 +61,71 @@ class OrderedSet[T]:
                 return True
         return False
 
+    # Complexity: O(N*M) where N = len(self) and M = len(other)
+    def __eq__(self, other: object) -> bool:
+        if self is other:
+            return True
+        if not isinstance(other, OrderedSet):
+            return False
+        if len(self) != len(other):  # type: ignore
+            return False
+        for elem in self:
+            if elem not in other:
+                return False
+        return True
+
+    # Complexity: O(N*M) where N = len(self) and M = len(other)
+    def __le__(self, other: OrderedSet[T]) -> bool:
+        if self is other:
+            return True
+        if len(self) > len(other):
+            return False
+        for elem in self:
+            if elem not in other:
+                return False
+        return True
+
+    # Complexity: O(N*M) where N = len(self) and M = len(other)
+    def __and__(self, other: OrderedSet[T]) -> OrderedSet[T]:
+        result: OrderedSet[T] = OrderedSet()
+        for elem in self:
+            if elem in other:
+                result.add(elem)
+        return result
+
+    # Complexity: O(N)
+    def discard(self, value: T) -> None:
+        current: _Node[T] = self.__sentinel.next
+        while current is not self.__sentinel:
+            if current.info == value:
+                current.prev.next = current.next
+                current.next.prev = current.prev
+                self.__count -= 1
+                return
+            current = current.next
+
 
 if __name__ == '__main__':
-    s1: OrderedSet[int] = OrderedSet()
-    s2: OrderedSet[str] = OrderedSet()
-    s2.add('one')
-    s2.add('two')
-    s2.add('three')
-    print('one' in s2)
-    print('hello' in s2)
+    s1: OrderedSet[int] = OrderedSet([4, 8, 15, 16, 23, 42])
+    s2: OrderedSet[int] = OrderedSet(s1)
+    s3: OrderedSet[int] = s1
+    print(f'{s1 = }')
+    print(f'{s2 = }')
+    print(f'{s1 == s2 = }')
+    print(f'{s1 is s2 = }')
+    print(f'{s1 is s3 = }')
+    s4: OrderedSet[int] = OrderedSet([8, 42])
+    print(f'{s4 <= s1 = }')
+    print(f'{s1 <= s4 = }')
+    print(f'{s4 <= s4 = }')
+    s5: OrderedSet[int] = OrderedSet()
+    print(f'{s5 <= s1 = }')
+    print(f'{s4 <= s1 = }')
+    print(f'{s1 <= s5 = }')
+    print(f'{s1 <= s1 = }')
+    print(f'{s4 = }')
+    s4.discard(42)
+    print(f'{s4 = }')
+    s4.discard(42)
+    print(f'{s4 = }')
+    print(f'{len(s4) = }')
