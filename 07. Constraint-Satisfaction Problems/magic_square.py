@@ -1,5 +1,6 @@
-from typing import NamedTuple
+from typing import NamedTuple, cast
 from csp import Constraint, CSP
+from itertools import permutations, batched
 
 
 type Grid = list[list[int]]
@@ -64,6 +65,13 @@ def solve_magic_square() -> None:
         print("No solution found :(")
 
 
+def brute_force_magic_square() -> None:
+    for i, p in enumerate(permutations(range(1, 10))):
+        grid: Grid = cast(Grid, list(batched(p, 3)))
+        if is_magic_square(grid):
+            print(i, grid)
+
+
 if __name__ == "__main__":
     # a: GridLocation = GridLocation(1, 1)
     # b: GridLocation = GridLocation(1, 1)
@@ -89,3 +97,5 @@ if __name__ == "__main__":
     #     9: GridLocation(1, 0),
     # }))
     solve_magic_square()
+    print()
+    brute_force_magic_square()
