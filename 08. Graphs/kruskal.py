@@ -5,6 +5,51 @@ from collections import deque
 type WeightedGraph = dict[str, set[tuple[str, int]]]
 
 
+class Edge(NamedTuple):
+
+    weight: int
+    u: str
+    v: str
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Edge):
+            return False
+        return (self.weight == other.weight
+                and ((self.u == other.u and self.v == other.v)
+                     or (self.u == other.v and self.v == other.u)))
+
+    def __hash__(self) -> int:
+        return hash(self.weight) + hash(self.u) + hash(self.v)
+
+
+def kruskal_mst(graph: WeightedGraph) -> tuple[int, WeightedGraph]:
+    queue: deque[Edge] = sort_edges(graph)
+    result: WeightedGraph = {v: set() for v in graph}
+    total: int = 0
+    visited: set[str] = set()
+    remaining_edges: int = len(graph) - 1
+    while remaining_edges:
+        edge: Edge = queue.popleft()
+        add_edge(result, edge)
+        if (edge.u in visited
+                and edge.v in visited
+                and has_cycle(edge.u, result)):
+            remove_edge(result, edge)
+        else:
+            visited.add(edge.u)
+            visited.add(edge.v)
+            total += edge.weight
+            remaining_edges -= 1
+    return (total, result)
+
+
+def sort_edges(graph: WeightedGraph) -> deque[Edge]:
+    result: set[Edge] = set()
+    for u, neighbours in graph.items():
+        for v, weight in neighbours:
+            result.add(Edge(weight, u, v))
+    return deque(sorted(list(result)))
+
 if __name__ == "__main__":
     from pprint import pprint
     g1: WeightedGraph = {
@@ -23,3 +68,11 @@ if __name__ == "__main__":
         'G': {('C', 7), ('D', 2), ('E', 8), ('F', 11), ('H', 5)},
         'H': {('F', 4), ('G', 5)}
     }
+    e1 = Edge(2, 'A', 'B')
+    e2 = Edge(2, 'B', 'A')
+    print(e1 == e2)
+    s: set[Edge] = set()
+    s.add(e1)
+    s.add(e2)
+    print(hash(e1), hash(e2))
+    print(s)
