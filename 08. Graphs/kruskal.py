@@ -50,6 +50,36 @@ def sort_edges(graph: WeightedGraph) -> deque[Edge]:
             result.add(Edge(weight, u, v))
     return deque(sorted(list(result)))
 
+
+def add_edge(graph: WeightedGraph, edge: Edge) -> None:
+    weight, u, v = edge
+    graph[u].add((v, weight))
+    graph[v].add((u, weight))
+
+
+def remove_edge(graph: WeightedGraph, edge: Edge) -> None:
+    weight, u, v = edge
+    graph[u].remove((v, weight))
+    graph[v].remove((u, weight))
+
+
+def has_cycle(
+        initial: str,
+        graph: WeightedGraph,
+        visited: set[str] | None = None,
+        parent: str | None = None) -> bool:
+    if visited is None:
+        visited = set()
+    visited.add(initial)
+    for v, _ in graph[initial]:
+        if v in visited:
+            if v != parent:
+                return True
+        elif has_cycle(v, graph, visited, initial):
+            return True
+    return False
+
+
 if __name__ == "__main__":
     from pprint import pprint
     g1: WeightedGraph = {
@@ -68,11 +98,12 @@ if __name__ == "__main__":
         'G': {('C', 7), ('D', 2), ('E', 8), ('F', 11), ('H', 5)},
         'H': {('F', 4), ('G', 5)}
     }
-    e1 = Edge(2, 'A', 'B')
-    e2 = Edge(2, 'B', 'A')
-    print(e1 == e2)
-    s: set[Edge] = set()
-    s.add(e1)
-    s.add(e2)
-    print(hash(e1), hash(e2))
-    print(s)
+    g3: WeightedGraph = {
+        'W': {('Y', 1), ('X', 10), ('Z', 2)},
+        'X': {('W', 10), ('Z', 20)},
+        'Y': {('W', 1), ('Z', 3)},
+        'Z': {('W', 2), ('X', 20), ('Y', 3)}
+    }
+    pprint(kruskal_mst(g1))
+    pprint(kruskal_mst(g2))
+    pprint(kruskal_mst(g3))
